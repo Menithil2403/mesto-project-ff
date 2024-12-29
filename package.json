@@ -5,15 +5,16 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
-    "dev": "webpack serve"
+    "dev": "webpack serve --mode development"
   },
   "author": "B.D.S",
   "license": "ISC",
   "dependencies": {
-    "core-js": "^3.39.0",
-    "webpack": "^5.96.1"
+    "core-js": "^3.39.0"
   },
   "devDependencies": {
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "autoprefixer": "^10.4.20",
@@ -24,7 +25,7 @@
     "html-webpack-plugin": "^5.6.3",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss-loader": "^8.1.1",
-    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
   }
 }
+

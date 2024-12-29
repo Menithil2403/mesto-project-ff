@@ -8,62 +8,119 @@
 
 // @todo: Вывести карточки на страницу
 
-
 import './pages/index.css';
 import { initialCards } from './cards.js';
 import { addCard } from './components/card.js';
-import { togglePopup } from './components/modal.js';
+import { openModal, closeModal } from './components/modal.js';
 
+// Селекторы 
 const content = document.querySelector('.content');
 const placeList = content.querySelector('.places__list');
-
-// Рендер карточек
-initialCards.forEach((card) => {
-    const cardElement = addCard(card.link, card.name, togglePopup);
-    placeList.prepend(cardElement);
-});
-
-// Селекторы
 const editPopup = document.querySelector('.popup_type_edit');
 const newCardPopup = document.querySelector('.popup_type_new-card');
+const imagePopup = document.querySelector('.popup_type_image');  
 const profileName = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
-const editForm = document.querySelector('.popup__form[name="edit-profile"]');
+const editForm = editPopup.querySelector('.popup__form[name="edit-profile"]');
 const newCardForm = newCardPopup.querySelector('.popup__form[name="new-place"]');
 const newCardNameInput = newCardPopup.querySelector('.popup__input_type_card-name');
 const newCardUrlInput = newCardPopup.querySelector('.popup__input_type_url');
+const nameInput = editPopup.querySelector('.popup__input_type_name');
+const descriptionInput = editPopup.querySelector('.popup__input_type_description');
+const profileEditButton = document.querySelector('.profile__edit-button');
+const profileAddButton = document.querySelector('.profile__add-button');
 
-// Открытие попапов
-document.querySelector('.profile__edit-button').addEventListener('click', () => togglePopup(editPopup, true));
-document.querySelector('.profile__add-button').addEventListener('click', () => togglePopup(newCardPopup, true));
+// Функция для открытия попапа с изображением
+function openImagePopup(cardImage) {
+    const popupImage = imagePopup.querySelector('.popup__image');
+    const popupCaption = imagePopup.querySelector('.popup__caption');
 
-// Закрытие попапов
-document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('popup__close') || event.target.classList.contains('popup')) {
-        togglePopup(event.target.closest('.popup'), false);
-    }
+    popupImage.src = cardImage.src;
+    popupImage.alt = cardImage.alt;
+    popupCaption.textContent = cardImage.alt;
+    openModal(imagePopup);
+}
+
+// Рендер карточек
+initialCards.forEach((card) => {
+    const cardData = {
+        imgLink: card.link,
+        cardTitle: card.name
+    };
+    const cardElement = addCard(cardData, openImagePopup, openModal);
+    placeList.prepend(cardElement);
 });
 
-// Закрытие по Escape
+// Открытие попапов
+profileEditButton.addEventListener('click', () => {
+    nameInput.value = profileName.textContent;
+    descriptionInput.value = profileDescription.textContent;
+    openModal(editPopup);
+
+    const closeOnEsc = (event) => {
+        if (event.key === 'Escape') {
+            closeModal(editPopup);
+            document.removeEventListener('keydown', closeOnEsc); 
+        }
+    };
+    document.addEventListener('keydown', closeOnEsc);
+});
+
+profileAddButton.addEventListener('click', () => {
+    openModal(newCardPopup);
+
+    const closeOnEsc = (event) => {
+        if (event.key === 'Escape') {
+            closeModal(newCardPopup);  
+            document.removeEventListener('keydown', closeOnEsc);
+        }
+    };
+    document.addEventListener('keydown', closeOnEsc);
+});
+
+// Закрытие попапов (устанавливаем слушатели на кнопки и оверлеи)
+const closeButtons = document.querySelectorAll('.popup__close');
+closeButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+        const popup = event.target.closest('.popup');
+        closeModal(popup); 
+    });
+});
+
+const overlays = document.querySelectorAll('.popup');
+overlays.forEach(overlay => {
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            closeModal(overlay);
+        }
+    });
+});
+
+// Закрытие по Escape для всех попапов
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-        document.querySelectorAll('.popup_is-opened').forEach(popup => togglePopup(popup, false));
+        const openPopups = document.querySelectorAll('.popup_is-opened');
+        openPopups.forEach(popup => closeModal(popup));
     }
 });
 
 // Редактирование профиля
 editForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    profileName.textContent = editForm.querySelector('.popup__input_type_name').value;
-    profileDescription.textContent = editForm.querySelector('.popup__input_type_description').value;
-    togglePopup(editPopup, false);
+    profileName.textContent = nameInput.value;
+    profileDescription.textContent = descriptionInput.value;
+    closeModal(editPopup);
 });
 
 // Добавление новой карточки
 newCardForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const newCard = addCard(newCardUrlInput.value, newCardNameInput.value, togglePopup);
+    const newCardData = {
+        imgLink: newCardUrlInput.value,
+        cardTitle: newCardNameInput.value
+    };
+    const newCard = addCard(newCardData, openImagePopup, openModal);
     placeList.prepend(newCard);
-    togglePopup(newCardPopup, false);
+    closeModal(newCardPopup);
     newCardForm.reset();
 });

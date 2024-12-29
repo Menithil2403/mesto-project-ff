@@ -1,13 +1,15 @@
-export function addCard(imgLink, cardTitle, togglePopup) {
+
+export function addCard(cardData, openImagePopup, openModal) {
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
     const cardDeleteButton = cardElement.querySelector('.card__delete-button');
     const cardLikeButton = cardElement.querySelector('.card__like-button');
     const cardImage = cardElement.querySelector('.card__image');
 
-    cardImage.setAttribute('src', imgLink);
-    cardElement.querySelector('.card__title').textContent = cardTitle;
-    cardImage.setAttribute('alt', cardTitle);
+    // Используем данные из объекта
+    cardImage.setAttribute('src', cardData.imgLink);
+    cardElement.querySelector('.card__title').textContent = cardData.cardTitle;
+    cardImage.setAttribute('alt', cardData.cardTitle);
 
     // Лайк
     cardLikeButton.addEventListener('click', () => {
@@ -21,14 +23,7 @@ export function addCard(imgLink, cardTitle, togglePopup) {
 
     // Открытие изображения
     cardImage.addEventListener('click', () => {
-        const popupImage = document.querySelector('.popup_type_image .popup__image');
-        const popupCaption = document.querySelector('.popup_type_image .popup__caption');
-        const imagePopup = document.querySelector('.popup_type_image');
-
-        popupImage.src = cardImage.src;
-        popupImage.alt = cardImage.alt;
-        popupCaption.textContent = cardImage.alt;
-        togglePopup(imagePopup, true);
+        openImagePopup(cardImage);
     });
 
     return cardElement;
