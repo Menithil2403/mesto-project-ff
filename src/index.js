@@ -1,16 +1,6 @@
-// @todo: Темплейт карточки
-
-// @todo: DOM узлы
-
-// @todo: Функция создания карточки
-
-// @todo: Функция удаления карточки
-
-// @todo: Вывести карточки на страницу
-
 import './pages/index.css';
 import { initialCards } from './cards.js';
-import { addCard } from './components/card.js';
+import { addCard, handleLike, handleDelete } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 
 // Селекторы 
@@ -31,13 +21,13 @@ const profileEditButton = document.querySelector('.profile__edit-button');
 const profileAddButton = document.querySelector('.profile__add-button');
 
 // Функция для открытия попапа с изображением
-function openImagePopup(cardImage) {
+function openImagePopup(cardData) {
     const popupImage = imagePopup.querySelector('.popup__image');
     const popupCaption = imagePopup.querySelector('.popup__caption');
 
-    popupImage.src = cardImage.src;
-    popupImage.alt = cardImage.alt;
-    popupCaption.textContent = cardImage.alt;
+    popupImage.src = cardData.imgLink;
+    popupImage.alt = cardData.cardTitle;
+    popupCaption.textContent = cardData.cardTitle;
     openModal(imagePopup);
 }
 
@@ -47,7 +37,7 @@ initialCards.forEach((card) => {
         imgLink: card.link,
         cardTitle: card.name
     };
-    const cardElement = addCard(cardData, openImagePopup, openModal);
+    const cardElement = addCard(cardData, handleLike, handleDelete, openImagePopup);
     placeList.prepend(cardElement);
 });
 
@@ -119,7 +109,7 @@ newCardForm.addEventListener('submit', (event) => {
         imgLink: newCardUrlInput.value,
         cardTitle: newCardNameInput.value
     };
-    const newCard = addCard(newCardData, openImagePopup, openModal);
+    const newCard = addCard(newCardData, handleLike, handleDelete, openImagePopup);
     placeList.prepend(newCard);
     closeModal(newCardPopup);
     newCardForm.reset();
