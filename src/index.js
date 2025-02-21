@@ -19,6 +19,28 @@ const nameInput = editPopup.querySelector('.popup__input_type_name');
 const descriptionInput = editPopup.querySelector('.popup__input_type_description');
 const profileEditButton = document.querySelector('.profile__edit-button');
 const profileAddButton = document.querySelector('.profile__add-button');
+const closeButtons = document.querySelectorAll('.popup__close');
+const overlays = document.querySelectorAll('.popup');
+
+// Функция закрытия попапов по Escape
+const handleEscClose = (event) => {
+    if (event.key === 'Escape') {
+        const openPopups = document.querySelectorAll('.popup_is-opened');
+        openPopups.forEach(popup => closeModal(popup));
+    }
+};
+
+// Добавление слушателя закрытия по Escape при открытии попапа
+function enhancedOpenModal(popup) {
+    openModal(popup);
+    document.addEventListener('keydown', handleEscClose);
+}
+
+// Перехватываем закрытие внутри closeModal
+function enhancedCloseModal(popup) {
+    closeModal(popup);
+    document.removeEventListener('keydown', handleEscClose);
+}
 
 // Функция для открытия попапа с изображением
 function openImagePopup(cardData) {
@@ -28,7 +50,7 @@ function openImagePopup(cardData) {
     popupImage.src = cardData.imgLink;
     popupImage.alt = cardData.cardTitle;
     popupCaption.textContent = cardData.cardTitle;
-    openModal(imagePopup);
+    enhancedOpenModal(imagePopup);
 }
 
 // Рендер карточек
@@ -45,53 +67,27 @@ initialCards.forEach((card) => {
 profileEditButton.addEventListener('click', () => {
     nameInput.value = profileName.textContent;
     descriptionInput.value = profileDescription.textContent;
-    openModal(editPopup);
-
-    const closeOnEsc = (event) => {
-        if (event.key === 'Escape') {
-            closeModal(editPopup);
-            document.removeEventListener('keydown', closeOnEsc); 
-        }
-    };
-    document.addEventListener('keydown', closeOnEsc);
+    enhancedOpenModal(editPopup);
 });
 
 profileAddButton.addEventListener('click', () => {
-    openModal(newCardPopup);
-
-    const closeOnEsc = (event) => {
-        if (event.key === 'Escape') {
-            closeModal(newCardPopup);  
-            document.removeEventListener('keydown', closeOnEsc);
-        }
-    };
-    document.addEventListener('keydown', closeOnEsc);
+    enhancedOpenModal(newCardPopup);
 });
 
 // Закрытие попапов (устанавливаем слушатели на кнопки и оверлеи)
-const closeButtons = document.querySelectorAll('.popup__close');
 closeButtons.forEach(button => {
     button.addEventListener('click', (event) => {
         const popup = event.target.closest('.popup');
-        closeModal(popup); 
+        enhancedCloseModal(popup);
     });
 });
 
-const overlays = document.querySelectorAll('.popup');
 overlays.forEach(overlay => {
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay) {
-            closeModal(overlay);
+            enhancedCloseModal(overlay);
         }
     });
-});
-
-// Закрытие по Escape для всех попапов
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        const openPopups = document.querySelectorAll('.popup_is-opened');
-        openPopups.forEach(popup => closeModal(popup));
-    }
 });
 
 // Редактирование профиля
@@ -99,7 +95,7 @@ editForm.addEventListener('submit', (event) => {
     event.preventDefault();
     profileName.textContent = nameInput.value;
     profileDescription.textContent = descriptionInput.value;
-    closeModal(editPopup);
+    enhancedCloseModal(editPopup);
 });
 
 // Добавление новой карточки
@@ -111,6 +107,6 @@ newCardForm.addEventListener('submit', (event) => {
     };
     const newCard = addCard(newCardData, handleLike, handleDelete, openImagePopup);
     placeList.prepend(newCard);
-    closeModal(newCardPopup);
+    enhancedCloseModal(newCardPopup);
     newCardForm.reset();
 });
