@@ -21,36 +21,15 @@ const profileEditButton = document.querySelector('.profile__edit-button');
 const profileAddButton = document.querySelector('.profile__add-button');
 const closeButtons = document.querySelectorAll('.popup__close');
 const overlays = document.querySelectorAll('.popup');
-
-// Функция закрытия попапов по Escape
-const handleEscClose = (event) => {
-    if (event.key === 'Escape') {
-        const openPopups = document.querySelectorAll('.popup_is-opened');
-        openPopups.forEach(popup => closeModal(popup));
-    }
-};
-
-// Добавление слушателя закрытия по Escape при открытии попапа
-function enhancedOpenModal(popup) {
-    openModal(popup);
-    document.addEventListener('keydown', handleEscClose);
-}
-
-// Перехватываем закрытие внутри closeModal
-function enhancedCloseModal(popup) {
-    closeModal(popup);
-    document.removeEventListener('keydown', handleEscClose);
-}
+const popupImage = imagePopup.querySelector('.popup__image');
+const popupCaption = imagePopup.querySelector('.popup__caption');
 
 // Функция для открытия попапа с изображением
 function openImagePopup(cardData) {
-    const popupImage = imagePopup.querySelector('.popup__image');
-    const popupCaption = imagePopup.querySelector('.popup__caption');
-
     popupImage.src = cardData.imgLink;
     popupImage.alt = cardData.cardTitle;
     popupCaption.textContent = cardData.cardTitle;
-    enhancedOpenModal(imagePopup);
+    openModal(imagePopup);
 }
 
 // Рендер карточек
@@ -67,25 +46,25 @@ initialCards.forEach((card) => {
 profileEditButton.addEventListener('click', () => {
     nameInput.value = profileName.textContent;
     descriptionInput.value = profileDescription.textContent;
-    enhancedOpenModal(editPopup);
+    openModal(editPopup);
 });
 
 profileAddButton.addEventListener('click', () => {
-    enhancedOpenModal(newCardPopup);
+    openModal(newCardPopup);
 });
 
 // Закрытие попапов (устанавливаем слушатели на кнопки и оверлеи)
 closeButtons.forEach(button => {
     button.addEventListener('click', (event) => {
         const popup = event.target.closest('.popup');
-        enhancedCloseModal(popup);
+        closeModal(popup);
     });
 });
 
 overlays.forEach(overlay => {
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay) {
-            enhancedCloseModal(overlay);
+            closeModal(overlay);
         }
     });
 });
@@ -95,7 +74,7 @@ editForm.addEventListener('submit', (event) => {
     event.preventDefault();
     profileName.textContent = nameInput.value;
     profileDescription.textContent = descriptionInput.value;
-    enhancedCloseModal(editPopup);
+    closeModal(editPopup);
 });
 
 // Добавление новой карточки
@@ -107,6 +86,6 @@ newCardForm.addEventListener('submit', (event) => {
     };
     const newCard = addCard(newCardData, handleLike, handleDelete, openImagePopup);
     placeList.prepend(newCard);
-    enhancedCloseModal(newCardPopup);
+    closeModal(newCardPopup);
     newCardForm.reset();
 });
