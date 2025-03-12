@@ -1,0 +1,4 @@
+/* Красная линия при ошибке */
+.popup__input-error {
+    border-bottom: 1px solid red !important;
+  }

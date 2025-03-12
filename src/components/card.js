@@ -1,36 +1,59 @@
+import { openDeletePopup } from './modal.js';
+import { toggleLike } from './api.js';
 
-// Функция для создания карточки
-export function addCard(cardData, handleLike, handleDelete, openImagePopup) {
+export function addCard(cardData, userId, handleLike, handleDelete, openImagePopup) {
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
     const cardDeleteButton = cardElement.querySelector('.card__delete-button');
     const cardLikeButton = cardElement.querySelector('.card__like-button');
     const cardImage = cardElement.querySelector('.card__image');
     const cardTitleElement = cardElement.querySelector('.card__title');
+    const likeCounter = cardElement.querySelector('.card__like-count');
 
-    // Используем данные из объекта
-    cardImage.setAttribute('src', cardData.imgLink);
-    cardImage.setAttribute('alt', cardData.cardTitle);
-    cardTitleElement.textContent = cardData.cardTitle;
+    cardImage.setAttribute('src', cardData.link);
+    cardImage.setAttribute('alt', cardData.name);
+    cardTitleElement.textContent = cardData.name;
+    likeCounter.textContent = cardData.likes.length;
 
-    // Установка обработчиков
-    cardLikeButton.addEventListener('click', () => handleLike(cardLikeButton));
-    cardDeleteButton.addEventListener('click', () => handleDelete(cardElement));
+    // Проверяем, лайкал ли текущий пользователь эту карточку
+    if (cardData.likes.some(like => like._id === userId)) {
+        cardLikeButton.classList.add('card__like-button_is-active');
+    }
+
+    // Показываем кнопку удаления только для своих карточек
+    if (cardData.owner._id !== userId) {
+        cardDeleteButton.remove();
+    } else {
+        cardDeleteButton.addEventListener('click', () => handleDelete(cardElement, cardData._id));
+    }
+
+    // Обработчик лайка
+    cardLikeButton.addEventListener('click', () => handleLike(cardLikeButton, cardData._id, likeCounter, userId));
+
+    // Обработчик открытия попапа изображения
     cardImage.addEventListener('click', () => openImagePopup(cardData));
 
     return cardElement;
 }
 
-// Обработчик лайка
-export function handleLike(likeButton) {
-    likeButton.classList.toggle('card__like-button_is-active');
+
+// === Функция обработки удаления карточки ===
+// Вызывает функцию открытия попапа подтверждения удаления
+export function handleDelete(cardElement, cardId) {
+    openDeletePopup(cardElement, cardId);
 }
 
-// Обработчик удаления карточки
-export function handleDelete(cardElement) {
-    if (cardElement && cardElement.remove) {
-        cardElement.remove();
-    } else {
-        console.error('Удаляемый элемент не найден или не поддерживает remove.');
-    }
+
+// === Функция обработки лайка карточки ===
+// Определяет, лайкнута ли карточка, отправляет соответствующий запрос на сервер
+export function handleLike(cardLikeButton, cardId, likeCountElement) {
+    const isLiked = cardLikeButton.classList.contains('card__like-button_is-active');
+    const method = isLiked ? 'DELETE' : 'PUT';
+
+    toggleLike(cardId, method)
+        .then(updatedCard => {
+            likeCountElement.textContent = updatedCard.likes.length; // Обновляем счетчик лайков
+            cardLikeButton.classList.toggle('card__like-button_is-active', !isLiked); // Переключаем класс
+        })
+        .catch(err => console.error('Ошибка постановки/снятия лайка:', err));
 }

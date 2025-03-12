@@ -1,0 +1,9 @@
+.popup__error {
+    display: block;
+    height: 24px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: red;
+    /*visibility: hidden; Скрывает ошибку, не убирая место */
+}
+
