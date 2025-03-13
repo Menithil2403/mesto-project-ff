@@ -1,8 +1,8 @@
 import './pages/index.css';
-import { addCard, handleLike, handleDelete } from './components/card.js';
-import { openModal, closeModal, getDeleteTarget } from './components/modal.js';
+import { addCard, handleLike, handleDelete, getDeleteTarget } from './components/card.js';
+import { openModal, closeModal } from './components/modal.js';
 import { enableValidation, clearValidation } from './components/validation.js';
-import { getCards, getUserInfo, updateUserInfo, updateAvatar, addNewCard, deleteCard} from './components/api.js';
+import { getCards, getUserInfo, updateUserInfo, updateAvatar, addNewCard, deleteCard } from './components/api.js';
 
 // Селекторы 
 const content = document.querySelector('.content');
@@ -27,10 +27,10 @@ const profileAddButton = document.querySelector('.profile__add-button');
 const closeButtons = document.querySelectorAll('.popup__close');
 const overlays = document.querySelectorAll('.popup');
 const popupImage = imagePopup.querySelector('.popup__image');
-const popupCaption = imagePopup.querySelector('.popup__caption');
-
+const popupCaptionImage = imagePopup.querySelector('.popup__caption');
 const deletePopup = document.querySelector('.popup_type_delete'); 
 const confirmDeleteButton = deletePopup.querySelector('.popup__button_confirm');
+const saveButton = newCardForm.querySelector('.popup__button');
 
 
 // Конфигурация валидации
@@ -52,7 +52,7 @@ enableValidation(validationConfig);
 function openImagePopup(cardData) {
     popupImage.src = cardData.link;
     popupImage.alt = cardData.name;
-    popupCaption.textContent = cardData.name;
+    popupCaptionImage.textContent = cardData.name;
     openModal(imagePopup);
 }
 
@@ -78,6 +78,7 @@ closeButtons.forEach(button => {
         closeModal(popup);
     });
 });
+
 
 overlays.forEach(overlay => {
     overlay.addEventListener('click', (event) => {
@@ -111,7 +112,6 @@ editForm.addEventListener('submit', (event) => {
 newCardForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const saveButton = newCardForm.querySelector('.popup__button');
     const defaultText = saveButton.textContent;
     saveButton.textContent = 'Сохранение...';
 
@@ -122,7 +122,7 @@ newCardForm.addEventListener('submit', (event) => {
 
     addNewCard(newCardData)
         .then((cardData) => {
-            const newCard = addCard(cardData, userId, handleLike, handleDelete, openImagePopup);
+            const newCard = addCard(cardData, userId, handleLike, handleDelete, openImagePopup, openModal);
             placeList.prepend(newCard);
             closeModal(newCardPopup);
             newCardForm.reset();
@@ -131,7 +131,6 @@ newCardForm.addEventListener('submit', (event) => {
         .catch((err) => console.error('Ошибка добавления карточки:', err))
         .finally(() => saveButton.textContent = defaultText);
 });
-
 
 
 // Подтверждение удаления карточки 
@@ -157,7 +156,7 @@ profileImage.addEventListener('click', () => {
 });
 
 
-// === Обновление аватара пользователя ===
+// === Обновление аватара пользователя === 
 avatarForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -175,37 +174,21 @@ avatarForm.addEventListener('submit', (event) => {
 });
 
 
-
-// === Загрузка карточек (тестовый вызов API) ===
-getCards().then(cards => {
-    console.log('Карточки:', cards);
-}).catch(err => console.log(`Ошибка загрузки карточек: ${err}`));
-// === Загрузка информации о пользователе (тестовый вызов API) ===
-getUserInfo().then(user => {
-    console.log('Информация о пользователе:', user);
-}).catch(err => console.log(`Ошибка загрузки пользователя: ${err}`));
-
-
-// === Загрузка данных пользователя и карточек ===
-let userId; // === Глобальная переменная для ID пользователя ===
+// === Загрузка данных пользователя и карточек === 
+let userId;
 Promise.all([getUserInfo(), getCards()])
 .then(([user, cards]) => {
-    // Сохраняем userId глобально, чтобы он был доступен в других функциях
     userId = user._id; 
 
-    // Отображаем профиль пользователя
     profileName.textContent = user.name;
     profileDescription.textContent = user.about;
     profileImage.style.backgroundImage = `url(${user.avatar})`;
 
-    // Отображаем карточки
     cards.forEach(cardData => {
-        const cardElement = addCard(cardData, userId, handleLike, handleDelete, openImagePopup);
+        const cardElement = addCard(cardData, userId, handleLike, handleDelete, openImagePopup, openModal);
         placeList.append(cardElement);
     });
 })
 .catch(err => {
     console.error(`❌ Ошибка загрузки данных: ${err}`);
 });
-
-

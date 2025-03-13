@@ -1,7 +1,23 @@
-import { openDeletePopup } from './modal.js';
 import { toggleLike } from './api.js';
 
-export function addCard(cardData, userId, handleLike, handleDelete, openImagePopup) {
+// Переменные для хранения удаляемой карточки
+let cardToDelete = null;
+let cardIdToDelete = null;
+
+// Функция открытия попапа подтверждения удаления
+export function openDeletePopup(cardElement, cardId, openModal) {
+    cardToDelete = cardElement;
+    cardIdToDelete = cardId;
+    openModal(document.querySelector('.popup_type_delete')); // Используем переданную функцию
+}
+
+// Функция получения данных о карточке для удаления
+export function getDeleteTarget() {
+    return { cardToDelete, cardIdToDelete };
+}
+
+// Функция добавления карточки
+export function addCard(cardData, userId, handleLike, handleDelete, openImagePopup, openModal) {
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
     const cardDeleteButton = cardElement.querySelector('.card__delete-button');
@@ -15,32 +31,26 @@ export function addCard(cardData, userId, handleLike, handleDelete, openImagePop
     cardTitleElement.textContent = cardData.name;
     likeCounter.textContent = cardData.likes.length;
 
-    // Проверяем, лайкал ли текущий пользователь эту карточку
     if (cardData.likes.some(like => like._id === userId)) {
         cardLikeButton.classList.add('card__like-button_is-active');
     }
 
-    // Показываем кнопку удаления только для своих карточек
     if (cardData.owner._id !== userId) {
         cardDeleteButton.remove();
     } else {
-        cardDeleteButton.addEventListener('click', () => handleDelete(cardElement, cardData._id));
+        cardDeleteButton.addEventListener('click', () => handleDelete(cardElement, cardData._id, openModal));
     }
 
-    // Обработчик лайка
-    cardLikeButton.addEventListener('click', () => handleLike(cardLikeButton, cardData._id, likeCounter, userId));
+    cardLikeButton.addEventListener('click', () => handleLike(cardLikeButton, cardData._id, likeCounter));
 
-    // Обработчик открытия попапа изображения
     cardImage.addEventListener('click', () => openImagePopup(cardData));
 
     return cardElement;
 }
 
-
-// === Функция обработки удаления карточки ===
-// Вызывает функцию открытия попапа подтверждения удаления
-export function handleDelete(cardElement, cardId) {
-    openDeletePopup(cardElement, cardId);
+// Функция обработки удаления карточки
+export function handleDelete(cardElement, cardId, openModal) {
+    openDeletePopup(cardElement, cardId, openModal);
 }
 
 
