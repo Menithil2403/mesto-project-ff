@@ -1,23 +1,7 @@
 import { toggleLike } from './api.js';
 
-// Переменные для хранения удаляемой карточки
-let cardToDelete = null;
-let cardIdToDelete = null;
-
-// Функция открытия попапа подтверждения удаления
-export function openDeletePopup(cardElement, cardId, openModal) {
-    cardToDelete = cardElement;
-    cardIdToDelete = cardId;
-    openModal(document.querySelector('.popup_type_delete')); // Используем переданную функцию
-}
-
-// Функция получения данных о карточке для удаления
-export function getDeleteTarget() {
-    return { cardToDelete, cardIdToDelete };
-}
-
 // Функция добавления карточки
-export function addCard(cardData, userId, handleLike, handleDelete, openImagePopup, openModal) {
+export function addCard(cardData, userId, handleLike, handleDelete, openImagePopup) {
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
     const cardDeleteButton = cardElement.querySelector('.card__delete-button');
@@ -38,7 +22,7 @@ export function addCard(cardData, userId, handleLike, handleDelete, openImagePop
     if (cardData.owner._id !== userId) {
         cardDeleteButton.remove();
     } else {
-        cardDeleteButton.addEventListener('click', () => handleDelete(cardElement, cardData._id, openModal));
+        cardDeleteButton.addEventListener('click', () => handleDelete(cardElement, cardData._id));
     }
 
     cardLikeButton.addEventListener('click', () => handleLike(cardLikeButton, cardData._id, likeCounter));
@@ -48,21 +32,14 @@ export function addCard(cardData, userId, handleLike, handleDelete, openImagePop
     return cardElement;
 }
 
-// Функция обработки удаления карточки
-export function handleDelete(cardElement, cardId, openModal) {
-    openDeletePopup(cardElement, cardId, openModal);
-}
-
-
-// === Функция обработки лайка карточки ===
-// Определяет, лайкнута ли карточка, отправляет соответствующий запрос на сервер
+// Функция обработки лайка карточки
 export function handleLike(cardLikeButton, cardId, likeCountElement) {
     const isLiked = cardLikeButton.classList.contains('card__like-button_is-active');
     const method = isLiked ? 'DELETE' : 'PUT';
 
     toggleLike(cardId, method)
         .then(updatedCard => {
-            likeCountElement.textContent = updatedCard.likes.length; // Обновляем счетчик лайков
+            likeCountElement.textContent = updatedCard.likes.length; // Обновляем счётчик лайков
             cardLikeButton.classList.toggle('card__like-button_is-active', !isLiked); // Переключаем класс
         })
         .catch(err => console.error('Ошибка постановки/снятия лайка:', err));
