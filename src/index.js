@@ -30,7 +30,7 @@ const popupImage = imagePopup.querySelector('.popup__image');
 const popupCaptionImage = imagePopup.querySelector('.popup__caption');
 const deletePopup = document.querySelector('.popup_type_delete');
 const confirmDeleteButton = deletePopup.querySelector('.popup__button_confirm');
-const saveButtonMain = newCardForm.querySelector('.popup__button');
+const buttonSafeAcceptGeneral = newCardForm.querySelector('.popup__button');
 
 // === Переменные для хранения удаляемой карточки ===
 let cardToDelete = null;
@@ -102,8 +102,8 @@ overlays.forEach(overlay => {
 editForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const defaultText = saveButtonMain.textContent;
-    saveButtonMain.textContent = 'Сохранение...';
+    const defaultText = buttonSafeAcceptGeneral.textContent;
+    buttonSafeAcceptGeneral.textContent = 'Сохранение...';
 
     updateUserInfo(nameInput.value, descriptionInput.value)
         .then((data) => {
@@ -112,15 +112,15 @@ editForm.addEventListener('submit', (event) => {
             closeModal(editPopup);
         })
         .catch(err => console.error('Ошибка при обновлении профиля:', err))
-        .finally(() => saveButtonMain.textContent = defaultText);
+        .finally(() => buttonSafeAcceptGeneral.textContent = defaultText);
 });
 
 // Форма добавления новой карточки 
 newCardForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const defaultText = saveButtonMain.textContent;
-    saveButtonMain.textContent = 'Сохранение...';
+    const defaultText = buttonSafeAcceptGeneral.textContent;
+    buttonSafeAcceptGeneral.textContent = 'Сохранение...';
 
     const newCardData = {
         name: newCardNameInput.value,
@@ -136,7 +136,7 @@ newCardForm.addEventListener('submit', (event) => {
             clearValidation(newCardForm, validationConfig);
         })
         .catch((err) => console.error('Ошибка добавления карточки:', err))
-        .finally(() => saveButtonMain.textContent = defaultText);
+        .finally(() => buttonSafeAcceptGeneral.textContent = defaultText);
 });
 
 // Подтверждение удаления карточки 
@@ -164,9 +164,9 @@ profileImage.addEventListener('click', () => {
 avatarForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const saveButtonMain = avatarForm.querySelector('.popup__button');
-    const defaultText = saveButtonMain.textContent;
-    saveButtonMain.textContent = 'Сохранение...';
+    const buttonSafeAcceptGeneral = avatarForm.querySelector('.popup__button');
+    const defaultText = buttonSafeAcceptGeneral.textContent;
+    buttonSafeAcceptGeneral.textContent = 'Сохранение...';
 
     updateAvatar(avatarInput.value)
         .then((userData) => {
@@ -174,7 +174,7 @@ avatarForm.addEventListener('submit', (event) => {
             closeModal(avatarPopup);
         })
         .catch((err) => console.error(`Ошибка обновления аватара: ${err}`))
-        .finally(() => saveButtonMain.textContent = defaultText);
+        .finally(() => buttonSafeAcceptGeneral.textContent = defaultText);
 });
 
 // === Загрузка данных пользователя и карточек === 
